@@ -1,0 +1,380 @@
+<title>Biografdæk – grafer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: smal læsekolonne med sticky opgavenavigation; hver delopgave er et anker (#1g …) som PDF'en linker til */
+:root{
+  --bg:#13151a; --panel:#1a1d24; --line:#2b2f39; --fg:#e7e2d7; --muted:#9aa0ab;
+  --accent:#e8873a; --blue:#5aa0e6; --blue-bg:rgba(90,160,230,.08);
+  --serif:"STIX Two Text","Times New Roman",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,Consolas,monospace;
+  color-scheme:dark;
+}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--fg);font:17px/1.55 var(--serif);margin:0}
+.wrap{max-width:980px;margin:0 auto;padding-inline:20px;padding-block:28px 80px}
+header h1{font-weight:700;font-size:2rem;margin:0 0 .2rem;text-wrap:balance}
+header p{color:var(--muted);margin:0;max-width:68ch}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line);
+  display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 0;margin:18px 0 10px;font-family:var(--mono);font-size:.82rem}
+nav a{color:var(--muted);text-decoration:none}
+nav a:hover,nav a:focus-visible{color:var(--accent)}
+nav .grp{color:var(--fg);opacity:.7}
+section{padding-top:26px}
+[id]{scroll-margin-top:60px}
+h2{font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:42px 0 0;border-top:1px solid var(--line);padding-top:16px}
+h3{color:var(--accent);font-size:1.35rem;margin:0 0 .3rem;text-wrap:balance}
+h3 .no{font-family:var(--mono);font-size:1rem;margin-right:.5em}
+.task{color:var(--muted);font-style:italic;margin:0 0 12px;max-width:72ch}
+.box{border:1px solid var(--blue);background:var(--blue-bg);border-radius:4px;padding:12px 14px;margin:10px 0}
+.box .tab{display:inline-block;font-family:var(--mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
+.ctrl{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center}
+.ctrl label{display:flex;align-items:center;gap:8px;font-size:.95rem}
+.ctrl input[type=range]{width:180px;accent-color:var(--accent)}
+.ctrl output,.read b{font-family:var(--mono);font-size:.85rem;color:var(--fg);font-weight:600}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{background:transparent;color:var(--muted);border:0;padding:6px 12px;font:600 .82rem var(--mono);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--accent);color:#14161b}
+.seg button:focus-visible,.btn:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.btn{background:transparent;border:1px solid var(--accent);color:var(--accent);border-radius:4px;padding:6px 12px;font:600 .82rem var(--mono);cursor:pointer}
+.read{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.92rem;color:var(--muted);margin-top:8px}
+.plot{width:100%;height:340px;min-width:0}
+.plot.tall{height:380px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid2>*{min-width:0}
+@media (max-width:760px){.grid2{grid-template-columns:1fr}.plot{height:300px}}
+.note{color:var(--muted);font-size:.92rem;max-width:72ch}
+.anchors{font-family:var(--mono);font-size:.8rem;color:var(--muted);columns:2;column-gap:28px}
+.anchors code{color:var(--fg)}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Biografdæk i bevægelse</h1>
+  <p>Interaktive grafer til Dynamik-afleveringen E26. Hold musen over en kurve for at aflæse værdier, træk i skyderne for at se, hvordan responset ændrer sig.</p>
+</header>
+
+<nav aria-label="Opgaver">
+  <span class="grp">SDOF</span><a href="#1g">1g</a><a href="#1h">1h</a><a href="#1i">1i</a>
+  <span class="grp">MDOF</span><a href="#2d">2d</a><a href="#2e">2e</a><a href="#2f">2f · 2h</a><a href="#2g">2g · 2i</a>
+</nav>
+
+<h2>Delopgave 1 · SDOF-analyse</h2>
+
+<section id="1g">
+  <h3><span class="no">1g</span>Transient respons fra impuls</h3>
+  <p class="task">Systemets frie dæmpede svingning efter impulsen 𝓘ₑ ≈ 41 Ns, med u(0) = 0 og u̇(0) = 𝓘ₑ/m.</p>
+  <div class="box"><span class="tab">Parametre</span>
+    <div class="ctrl">
+      <label for="s_zeta">ζ <input type="range" id="s_zeta" min="0.5" max="10" step="0.1" value="2.5"><output id="o_zeta"></output></label>
+      <label for="s_imp">𝓘ₑ <input type="range" id="s_imp" min="10" max="80" step="1" value="41"><output id="o_imp"></output></label>
+      <button class="btn" id="b_reset1">Opgavens værdier</button>
+    </div>
+    <div class="read" id="r_1g"></div>
+  </div>
+  <div id="p_1g" class="plot"></div>
+</section>
+
+<section id="1h">
+  <h3><span class="no">1h</span>Acceleration og RMS</h3>
+  <p class="task">Accelerationen ü(t) ≈ −ω²u(t) for det første sekund og dens RMS-værdi. Følger skyderne i 1g.</p>
+  <div id="p_1h" class="plot"></div>
+  <div class="read" id="r_1h"></div>
+</section>
+
+<section id="1i">
+  <h3><span class="no">1i</span>Steady-state respons fra harmonisk last</h3>
+  <p class="task">pₑ(t) = 3.73·350·sin(Ωt) N. Flyt lastfrekvensen og se, hvor på R_d-kurven systemet ligger.</p>
+  <div class="box"><span class="tab">Lastfrekvens</span>
+    <div class="ctrl">
+      <label for="s_W1">Ω <input type="range" id="s_W1" min="5" max="300" step="1" value="176"><output id="o_W1"></output></label>
+      <button class="btn" id="b_reset2">Ω = 176 rad/s</button>
+    </div>
+    <div class="read" id="r_1i"></div>
+  </div>
+  <div class="grid2">
+    <div id="p_1i_rd" class="plot"></div>
+    <div id="p_1i_u" class="plot"></div>
+  </div>
+</section>
+
+<h2>Delopgave 2 · MDOF-analyse</h2>
+
+<section id="2d">
+  <h3><span class="no">2d</span>Egensvingningsformer</h3>
+  <p class="task">De normaliserede modeformer φₙ inkl. understøtninger. Vælg mode og afspil svingningen.</p>
+  <div class="box"><span class="tab">Mode</span>
+    <div class="ctrl">
+      <span class="seg" id="seg_mode"></span>
+      <button class="btn" id="b_play">▶ Afspil</button>
+      <label for="c_two"><input type="checkbox" id="c_two" checked> vis mode 1 og 2 samtidig</label>
+    </div>
+    <div class="read" id="r_2d"></div>
+  </div>
+  <div id="p_2d" class="plot"></div>
+</section>
+
+<section id="2e">
+  <h3><span class="no">2e</span>Rayleigh-dæmpning</h3>
+  <p class="task">ζₙ = a₀/(2ωₙ) + a₁ωₙ/2. Masseleddet dominerer ved lave frekvenser, stivhedsleddet ved høje.</p>
+  <div class="box"><span class="tab">Krav til mode 1 og 2</span>
+    <div class="ctrl">
+      <label for="s_z1">ζ₁ <input type="range" id="s_z1" min="0.5" max="6" step="0.1" value="2.5"><output id="o_z1"></output></label>
+      <label for="s_z2">ζ₂ <input type="range" id="s_z2" min="0.5" max="6" step="0.1" value="1.5"><output id="o_z2"></output></label>
+      <button class="btn" id="b_reset3">Opgavens værdier</button>
+    </div>
+    <div class="read" id="r_2e"></div>
+  </div>
+  <div id="p_2e" class="plot"></div>
+</section>
+
+<section id="2f"><span id="2h"></span>
+  <h3><span class="no">2f · 2h</span>Modal lastvektor</h3>
+  <p class="task">Pₙ = φₙᵀp. Skift mellem alle fem stole (2f) og strømsvigt, hvor kun stol 1–3 kører (2h).</p>
+  <div class="box"><span class="tab">Lastsituation</span>
+    <div class="ctrl"><span class="seg" id="seg_load"></span></div>
+    <div class="read" id="r_2f"></div>
+  </div>
+  <div class="grid2">
+    <div id="p_2f" class="plot"></div>
+    <div id="p_2f_load" class="plot"></div>
+  </div>
+</section>
+
+<section id="2g"><span id="2i"></span>
+  <h3><span class="no">2g · 2i</span>Steady-state respons, alle frihedsgrader</h3>
+  <p class="task">u(t) = Φ q(t) med qₙ(t) = (Pₙ/Kₙ)·R_d,ₙ·sin(Ωt − ϕₙ). Δt = 0.001 s over 0–0.1 s. Klik i legenden for at skjule kurver.</p>
+  <div class="box"><span class="tab">Last og frekvens</span>
+    <div class="ctrl">
+      <span class="seg" id="seg_load2"></span>
+      <label for="s_W2">Ω <input type="range" id="s_W2" min="20" max="400" step="1" value="176"><output id="o_W2"></output></label>
+      <button class="btn" id="b_reset4">Ω = 176 rad/s</button>
+    </div>
+    <div class="read" id="r_2g"></div>
+  </div>
+  <div id="p_2g" class="plot tall"></div>
+  <div class="grid2">
+    <div id="p_2g_beam" class="plot"></div>
+    <div id="p_2g_modes" class="plot"></div>
+  </div>
+  <div class="ctrl" style="margin-top:6px">
+    <label for="s_t">t <input type="range" id="s_t" min="0" max="100" step="1" value="27"><output id="o_t"></output></label>
+    <button class="btn" id="b_play2">▶ Afspil</button>
+  </div>
+</section>
+
+<h2>Links til PDF</h2>
+<p class="note">Tilføj adressen til denne side efterfulgt af et anker som link på den tilsvarende graf i PDF'en.</p>
+<div class="anchors">
+  <div><code>#1g</code> Transient respons</div><div><code>#1h</code> Acceleration og RMS</div>
+  <div><code>#1i</code> Steady-state SDOF</div><div><code>#2d</code> Modeformer</div>
+  <div><code>#2e</code> Rayleigh-dæmpning</div><div><code>#2f</code> / <code>#2h</code> Modal last</div>
+  <div><code>#2g</code> / <code>#2i</code> Respons MDOF</div>
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/plotly.js-dist-min@2.27.0/plotly.min.js"></script>
+<script>
+(function(){
+const css=getComputedStyle(document.documentElement);
+const C={fg:css.getPropertyValue('--fg').trim(),mut:css.getPropertyValue('--muted').trim(),line:css.getPropertyValue('--line').trim(),
+  acc:css.getPropertyValue('--accent').trim(),blue:css.getPropertyValue('--blue').trim()};
+const DOFC=['#5aa0e6','#e06666','#e7e2d7','#e8873a','#5fc9d8'];
+const MODEC=['#5aa0e6','#e8873a','#7fc48a','#c99be0','#d9c36a'];
+const $=id=>document.getElementById(id);
+const fmt=(v,d=2)=>Number(v).toFixed(d);
+const lin=(a,b,n)=>Array.from({length:n},(_,i)=>a+(b-a)*i/(n-1));
+const cfg={displaylogo:false,responsive:true,modeBarButtonsToRemove:['lasso2d','select2d','autoScale2d','toggleSpikelines']};
+function lay(xt,yt,extra){return Object.assign({paper_bgcolor:'rgba(0,0,0,0)',plot_bgcolor:'rgba(0,0,0,0)',
+  font:{family:'STIX Two Text, Georgia, serif',color:C.fg,size:14},margin:{l:62,r:16,t:16,b:50},
+  xaxis:{title:{text:xt},gridcolor:C.line,zerolinecolor:C.mut,linecolor:C.line},
+  yaxis:{title:{text:yt},gridcolor:C.line,zerolinecolor:C.mut,linecolor:C.line},
+  legend:{orientation:'h',y:1.12,x:0,font:{size:12}},hovermode:'x unified',
+  hoverlabel:{bgcolor:'#1a1d24',bordercolor:C.line,font:{family:'JetBrains Mono, monospace',size:12,color:C.fg}}},extra||{});}
+
+/* ---------- data (samme tal som Mathcad) ---------- */
+const E=33e9,b=1.2,h=0.3,rho=2550,l=7.5,I=b*h**3/12,EI=E*I,mu=rho*b*h;
+const m=0.5*mu*l, k=48*EI/l**3, w=Math.sqrt(k/m);
+const pe0=3.73*350;
+const wn=[54.6601,218.4178,488.3971,845.9287,1210.3306];
+const Mn=[3442.5,4590,3442.5,4590,3442.5];
+const Kn=wn.map((x,i)=>x*x*Mn[i]);
+const PhiN=[ // søjler = modes, samme fortegn som i Mathcad
+ [0.5, 1, -1, 1, 0.5],
+ [0.866025, 1, 0, -1, -0.866025],
+ [1, 0, 1, 0, 1],
+ [0.866025, -1, 0, 1, -0.866025],
+ [0.5, -1, -1, -1, 0.5]];
+const LOADS={all:[1,1,1,1,1],l13:[1,1,1,0,0]};
+const xs=[0,1.25,2.5,3.75,5,6.25,7.5];
+const st={zeta:0.025,imp:41,W1:176,mode:0,z1:0.025,z2:0.015,load:'all',W2:176,ti:27};
+
+/* ---------- 1g / 1h ---------- */
+const t1=lin(0,1,1001);
+function sdofFree(){
+  const z=st.zeta, wd=w*Math.sqrt(1-z*z), v0=st.imp/m;
+  const u=t1.map(t=>v0/wd*Math.exp(-z*w*t)*Math.sin(wd*t));
+  return {wd,v0,u,env:t1.map(t=>v0/wd*Math.exp(-z*w*t))};
+}
+function draw1g(){
+  const r=sdofFree(); const um=r.u.map(x=>x*1e3);
+  Plotly.react('p_1g',[
+    {x:t1,y:r.env.map(x=>x*1e3),name:'indhyldning',line:{color:C.mut,dash:'dot',width:1},hoverinfo:'skip'},
+    {x:t1,y:r.env.map(x=>-x*1e3),showlegend:false,line:{color:C.mut,dash:'dot',width:1},hoverinfo:'skip'},
+    {x:t1,y:um,name:'u(t)',line:{color:C.acc,width:2},hovertemplate:'%{y:.4f} mm<extra></extra>'}],
+    lay('t [s]','u [mm]'),cfg);
+  const umax=Math.max(...um);
+  $('r_1g').innerHTML=`ω<sub>D</sub> = <b>${fmt(r.wd)} rad/s</b> · f<sub>D</sub> = <b>${fmt(r.wd/2/Math.PI)} Hz</b> · u̇(0) = <b>${fmt(r.v0*1e3,2)} mm/s</b> · u<sub>max</sub> = <b>${fmt(umax,3)} mm</b>`;
+  const a=r.u.map(x=>-w*w*x);
+  let s=0; const rms=a.map((x,i)=>{s+=x*x;return Math.sqrt(s/(i+1));});
+  const arms=rms[rms.length-1];
+  Plotly.react('p_1h',[
+    {x:t1,y:a,name:'ü(t) ≈ −ω²u',line:{color:C.blue,width:1.5},hovertemplate:'%{y:.3f} m/s²<extra></extra>'},
+    {x:t1,y:rms,name:'løbende RMS',line:{color:C.acc,width:2},hovertemplate:'%{y:.3f} m/s²<extra></extra>'}],
+    lay('t [s]','ü [m/s²]'),cfg);
+  $('r_1h').innerHTML=`a<sub>RMS</sub> (0–1 s) = <b>${fmt(arms,3)} m/s²</b> · ü<sub>max</sub> = <b>${fmt(Math.max(...a.map(Math.abs)),3)} m/s²</b> · svarer til <b>${fmt(arms/9.81*100,1)} %</b> af g`;
+}
+
+/* ---------- 1i ---------- */
+const rd=(beta,z)=>1/Math.sqrt((1-beta*beta)**2+(2*z*beta)**2);
+const phase=(beta,z)=>Math.atan2(2*z*beta,1-beta*beta);
+function draw1i(){
+  const z=0.025, W=st.W1, beta=W/w, R=rd(beta,z), ph=phase(beta,z), u0=pe0/k*R;
+  const bs=lin(0.02,6,600);
+  Plotly.react('p_1i_rd',[
+    {x:bs,y:bs.map(x=>rd(x,z)),name:'R_d(β)',line:{color:C.blue,width:2},hovertemplate:'β=%{x:.2f}  R_d=%{y:.3f}<extra></extra>'},
+    {x:[beta],y:[R],name:'driftspunkt',mode:'markers',marker:{color:C.acc,size:11},hovertemplate:'β=%{x:.2f}  R_d=%{y:.3f}<extra></extra>'}],
+    lay('β = Ω/ω','R_d',{yaxis:{type:'log',title:{text:'R_d'},gridcolor:C.line,linecolor:C.line},hovermode:'closest'}),cfg);
+  const tt=lin(0,0.2,801);
+  Plotly.react('p_1i_u',[
+    {x:tt,y:tt.map(t=>pe0*Math.sin(W*t)/k*1e6),name:'p/k (statisk)',line:{color:C.mut,dash:'dot',width:1}, hovertemplate:'%{y:.1f} µm<extra></extra>'},
+    {x:tt,y:tt.map(t=>u0*Math.sin(W*t-ph)*1e6),name:'u(t)',line:{color:C.acc,width:2},hovertemplate:'%{y:.2f} µm<extra></extra>'}],
+    lay('t [s]','u [µm]'),cfg);
+  $('r_1i').innerHTML=`β = <b>${fmt(beta,3)}</b> · R<sub>d</sub> = <b>${fmt(R,3)}</b> · ϕ = <b>${fmt(ph*180/Math.PI,1)}°</b> · u<sub>0</sub> = <b>${fmt(u0*1e6,2)} µm</b>`;
+}
+
+/* ---------- 2d ---------- */
+const shape=n=>[0,...PhiN.map(r=>r[n]),0];
+let anim2d=null,ph2d=0;
+function draw2d(){
+  const sc=Math.cos(ph2d);
+  const modes=$('c_two').checked&&st.mode<2?[0,1]:[st.mode];
+  const tr=modes.map(n=>({x:xs,y:shape(n).map(v=>v*sc),name:`mode ${n+1} · f = ${fmt(wn[n]/2/Math.PI)} Hz`,mode:'lines+markers',
+    line:{color:MODEC[n],width:2.5},marker:{size:[0,11,11,11,11,11,0],color:MODEC[n]},hovertemplate:'x=%{x} m  φ=%{y:.3f}<extra></extra>'}));
+  tr.push({x:xs,y:shape(modes[0]),showlegend:false,mode:'lines',line:{color:C.line,dash:'dot',width:1},hoverinfo:'skip'});
+  tr.push({x:[0,7.5],y:[0,0],showlegend:false,mode:'markers',marker:{symbol:'triangle-up',size:16,color:C.mut},hoverinfo:'skip'});
+  Plotly.react('p_2d',tr,lay('x [m]','φ [-]',{yaxis:{range:[-1.25,1.25],title:{text:'φ [-]'},gridcolor:C.line,zerolinecolor:C.mut},hovermode:'closest'}),cfg);
+  const n=st.mode;
+  $('r_2d').innerHTML=`mode ${n+1}: ω = <b>${fmt(wn[n])} rad/s</b> · f = <b>${fmt(wn[n]/2/Math.PI)} Hz</b> · M<sub>n</sub> = <b>${fmt(Mn[n],1)} kg</b> · K<sub>n</sub> = <b>${(Kn[n]/1e6).toFixed(2)}·10⁶ N/m</b>`;
+}
+
+/* ---------- 2e ---------- */
+function rayleigh(){
+  const [w1,w2]=wn, z1=st.z1, z2=st.z2;
+  const a1=2*(z2*w2-z1*w1)/(w2*w2-w1*w1), a0=2*z1*w1-a1*w1*w1;
+  return {a0,a1,z:wn.map(x=>a0/(2*x)+a1*x/2)};
+}
+function draw2e(){
+  const r=rayleigh(), ws=lin(20,1400,500);
+  Plotly.react('p_2e',[
+    {x:ws,y:ws.map(x=>r.a0/(2*x)*100),name:'masseled a₀/(2ω)',line:{color:C.blue,dash:'dot',width:1.5},hoverinfo:'skip'},
+    {x:ws,y:ws.map(x=>r.a1*x/2*100),name:'stivhedsled a₁ω/2',line:{color:C.mut,dash:'dash',width:1.5},hoverinfo:'skip'},
+    {x:ws,y:ws.map(x=>(r.a0/(2*x)+r.a1*x/2)*100),name:'ζ(ω)',line:{color:C.acc,width:2.5},hovertemplate:'ω=%{x:.0f}  ζ=%{y:.2f} %<extra></extra>'},
+    {x:wn,y:r.z.map(x=>x*100),name:'modes',mode:'markers+text',text:['1','2','3','4','5'],textposition:'top center',
+     marker:{color:C.fg,size:10},textfont:{color:C.fg},hovertemplate:'ω=%{x:.1f}  ζ=%{y:.2f} %<extra></extra>'},
+    {x:[176,176],y:[0,8],name:'Ω = 176',mode:'lines',line:{color:C.blue,width:1},hoverinfo:'skip'}],
+    lay('ω [rad/s]','ζ [%]',{yaxis:{range:[0,8],title:{text:'ζ [%]'},gridcolor:C.line},hovermode:'closest'}),cfg);
+  $('r_2e').innerHTML=`a<sub>0</sub> = <b>${fmt(r.a0,3)} 1/s</b> · a<sub>1</sub> = <b>${(r.a1*1e5).toFixed(3)}·10⁻⁵ s</b> · ζ = [${r.z.map(x=>'<b>'+fmt(x*100,2)+'</b>').join(', ')}] %`;
+}
+
+/* ---------- 2f / 2h ---------- */
+const modalP=load=>[0,1,2,3,4].map(n=>350*LOADS[load].reduce((s,f,j)=>s+f*PhiN[j][n],0));
+function draw2f(){
+  const P=modalP(st.load), Pall=modalP('all');
+  Plotly.react('p_2f',[
+    {x:['P₁','P₂','P₃','P₄','P₅'],y:Pall,name:'alle 5 stole (2f)',type:'bar',marker:{color:C.mut},opacity:st.load==='all'?1:.35,hovertemplate:'%{y:.1f} N<extra></extra>'},
+    ...(st.load==='l13'?[{x:['P₁','P₂','P₃','P₄','P₅'],y:P,name:'stol 1–3 (2h)',type:'bar',marker:{color:C.acc},hovertemplate:'%{y:.1f} N<extra></extra>'}]:[])],
+    lay('','Pₙ [N]',{barmode:'group',hovermode:'x unified'}),cfg);
+  const p=LOADS[st.load];
+  Plotly.react('p_2f_load',[
+    {x:xs,y:[0,0,0,0,0,0,0],mode:'lines',line:{color:C.fg,width:4},showlegend:false,hoverinfo:'skip'},
+    {x:xs.slice(1,6),y:p.map(()=>0),mode:'markers',marker:{size:14,color:C.mut},showlegend:false,hoverinfo:'skip'},
+    {x:xs.slice(1,6),y:p.map(f=>f?350:0),type:'bar',width:0.25,marker:{color:p.map(f=>f?C.acc:C.line)},name:'p(t) amplitude',hovertemplate:'%{y} N<extra></extra>'},
+    {x:[0,7.5],y:[0,0],mode:'markers',marker:{symbol:'triangle-up',size:16,color:C.mut},showlegend:false,hoverinfo:'skip'}],
+    lay('x [m]','last [N]',{yaxis:{range:[-60,420],title:{text:'last [N]'},gridcolor:C.line},hovermode:'closest'}),cfg);
+  $('r_2f').innerHTML=`P = [${P.map(x=>'<b>'+fmt(Math.abs(x)<1e-9?0:x,1)+'</b>').join(', ')}] N`;
+}
+
+/* ---------- 2g / 2i ---------- */
+const tg=lin(0,0.1,101);
+function mdof(){
+  const z=rayleigh().z, W=st.W2, P=modalP(st.load);
+  const q=[0,1,2,3,4].map(n=>{const be=W/wn[n];return {amp:P[n]/Kn[n]*rd(be,z[n]),ph:phase(be,z[n]),be,R:rd(be,z[n])};});
+  const u=t=>PhiN.map(r=>r.reduce((s,f,n)=>s+f*q[n].amp*Math.sin(W*t-q[n].ph),0));
+  const amp=PhiN.map(r=>{let re=0,im=0;r.forEach((f,n)=>{re+=f*q[n].amp*Math.cos(q[n].ph);im+=f*q[n].amp*Math.sin(q[n].ph);});return Math.hypot(re,im);});
+  return {q,u,amp,W};
+}
+function draw2g(){
+  const r=mdof(); const U=tg.map(t=>r.u(t));
+  Plotly.react('p_2g',[0,1,2,3,4].map(j=>({x:tg,y:U.map(v=>v[j]*1e6),name:`u${j+1}`,line:{color:DOFC[j],width:j===2?2.6:1.8},hovertemplate:`u${j+1} = %{y:.2f} µm<extra></extra>`})),
+    lay('t [s]','u [µm]'),cfg);
+  $('r_2g').innerHTML=`amplituder: ${r.amp.map((a,j)=>`u${j+1} = <b>${fmt(a*1e6,2)}</b>`).join(' · ')} µm`;
+  drawBeam(r);
+  const bs=lin(0.05,4,400), z=rayleigh().z;
+  Plotly.react('p_2g_modes',[
+    ...[0,1,2,3,4].map(n=>({x:bs,y:bs.map(x=>rd(x,z[n])),name:`R_d,${n+1}`,line:{color:MODEC[n],width:1.2},hoverinfo:'skip',showlegend:false})),
+    {x:r.q.map(o=>o.be),y:r.q.map(o=>o.R),mode:'markers+text',text:['1','2','3','4','5'],textposition:'top right',textfont:{color:C.fg},
+     marker:{color:MODEC,size:11},name:'modes ved Ω',hovertemplate:'β=%{x:.2f}  R_d=%{y:.2f}<extra></extra>'}],
+    lay('βₙ = Ω/ωₙ','R_d,n',{yaxis:{type:'log',title:{text:'R_d,n'},gridcolor:C.line},hovermode:'closest',margin:{l:62,r:16,t:16,b:50}}),cfg);
+}
+function drawBeam(r){
+  r=r||mdof(); const t=st.ti/1000, v=r.u(t).map(x=>x*1e6), env=r.amp.map(a=>a*1e6);
+  const mx=Math.max(...env)*1.15;
+  Plotly.react('p_2g_beam',[
+    {x:xs,y:[0,...env,0],mode:'lines',line:{color:C.line,dash:'dot'},name:'± amplitude',hoverinfo:'skip'},
+    {x:xs,y:[0,...env.map(x=>-x),0],mode:'lines',line:{color:C.line,dash:'dot'},showlegend:false,hoverinfo:'skip'},
+    {x:xs,y:[0,...v,0],mode:'lines+markers',line:{color:C.acc,width:3},marker:{size:[0,11,11,11,11,11,0],color:DOFC.map(()=>C.acc)},
+     name:`dæk ved t = ${fmt(t,3)} s`,hovertemplate:'x=%{x} m  u=%{y:.2f} µm<extra></extra>'},
+    {x:[0,7.5],y:[0,0],mode:'markers',marker:{symbol:'triangle-up',size:16,color:C.mut},showlegend:false,hoverinfo:'skip'}],
+    lay('x [m]','u [µm]',{yaxis:{range:[-mx,mx],title:{text:'u [µm]'},gridcolor:C.line,zerolinecolor:C.mut},hovermode:'closest'}),cfg);
+  $('o_t').textContent=fmt(t,3)+' s';
+}
+
+/* ---------- controls ---------- */
+function seg(id,items,key,cb){const el=$(id);el.innerHTML='';items.forEach(([v,lab])=>{const b=document.createElement('button');b.type='button';b.textContent=lab;
+  b.setAttribute('aria-pressed',String(st[key]===v));b.onclick=()=>{st[key]=v;el.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));cb();};el.appendChild(b);});}
+function bind(id,key,scale,out,unit,cb,dec){const i=$(id);const up=()=>{st[key]=+i.value*scale;$(out).textContent=(+i.value).toFixed(dec)+unit;cb();};i.addEventListener('input',up);up();}
+function setR(id,v){const i=$(id);i.value=v;i.dispatchEvent(new Event('input'));}
+
+function init(){
+  bind('s_zeta','zeta',0.01,'o_zeta',' %',draw1g,1);
+  bind('s_imp','imp',1,'o_imp',' Ns',draw1g,0);
+  $('b_reset1').onclick=()=>{setR('s_zeta',2.5);setR('s_imp',41);};
+  bind('s_W1','W1',1,'o_W1',' rad/s',draw1i,0);
+  $('b_reset2').onclick=()=>setR('s_W1',176);
+  seg('seg_mode',[[0,'1'],[1,'2'],[2,'3'],[3,'4'],[4,'5']],'mode',draw2d);
+  $('c_two').addEventListener('change',draw2d);
+  $('b_play').onclick=()=>{if(anim2d){cancelAnimationFrame(anim2d);anim2d=null;ph2d=0;$('b_play').textContent='▶ Afspil';draw2d();return;}
+    $('b_play').textContent='❚❚ Stop';let last=performance.now();const step=now=>{ph2d+=(now-last)/1000*2.5;last=now;draw2d();anim2d=requestAnimationFrame(step);};anim2d=requestAnimationFrame(step);};
+  const both=()=>{draw2e();draw2g();};
+  bind('s_z1','z1',0.01,'o_z1',' %',both,1);
+  bind('s_z2','z2',0.01,'o_z2',' %',both,1);
+  $('b_reset3').onclick=()=>{setR('s_z1',2.5);setR('s_z2',1.5);};
+  const loadSync=()=>{['seg_load','seg_load2'].forEach(id=>$(id).querySelectorAll('button').forEach((b,i)=>b.setAttribute('aria-pressed',String((i===0)===(st.load==='all')))));draw2f();draw2g();};
+  seg('seg_load',[['all','alle 5 stole (2f)'],['l13','kun stol 1–3 (2h)']],'load',loadSync);
+  seg('seg_load2',[['all','alle 5 stole (2g)'],['l13','kun stol 1–3 (2i)']],'load',loadSync);
+  bind('s_W2','W2',1,'o_W2',' rad/s',draw2g,0);
+  $('b_reset4').onclick=()=>setR('s_W2',176);
+  $('s_t').addEventListener('input',()=>{st.ti=+$('s_t').value;drawBeam();});
+  let anim2g=null;
+  $('b_play2').onclick=()=>{if(anim2g){clearInterval(anim2g);anim2g=null;$('b_play2').textContent='▶ Afspil';return;}
+    $('b_play2').textContent='❚❚ Stop';anim2g=setInterval(()=>{st.ti=(st.ti+1)%101;$('s_t').value=st.ti;drawBeam();},60);};
+  draw2d();draw2f();drawBeam();
+  // hash for 2h / 2i vælger lastsituation
+  const h=location.hash.replace('#','');
+  if(h==='2h'||h==='2i'){st.load='l13';loadSync();}
+}
+if(window.Plotly) init(); else window.addEventListener('load',()=>window.Plotly&&init());
+})();
+</script>
